@@ -1,0 +1,29 @@
+查詢Cluster 0 (All Dust):
+MATCH c=(inp:Address)-->(trans:Transaction)-->(outp:Address)
+WHERE trans.DustBool = '1' 
+    AND inp.Cluster = '0_dust'AND NOT EXISTS((: Transaction)-->(inp))
+RETURN COUNT(DISTINCT inp)
+
+
+查詢Cluster -1 (All Dust) output:
+MATCH c=(inp:Address)-->(trans:Transaction)-->(outp:Address)
+WHERE trans.DustBool = '1' 
+    AND outp.Cluster = '-1_dust' AND NOT EXISTS((outp)-->(:Transaction))
+RETURN COUNT(DISTINCT outp)
+
+查詢Cluster -1 (All Dust) output-->Input:
+MATCH c=(inp:Address)-->(transA:Transaction)-->(outp:Address)
+WHERE transA.DustBool = '1' 
+    AND outp.Cluster = '-1_dust' 
+    AND EXISTS {
+        MATCH (outp)-->(transB:Transaction)
+        WHERE transB.DustBool = '1'
+    }
+RETURN COUNT(DISTINCT outp)
+
+
+
+MATCH c=(inp:Address)-->(trans:Transaction)-->(outp:Address)
+WHERE (trans.DustBool = '0' or trans.DustBool = '1')
+    AND outp.Cluster = '-1_txn' AND NOT EXISTS((outp)-->(:Transaction))
+RETURN COUNT(DISTINCT outp)
